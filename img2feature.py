@@ -6,10 +6,13 @@ from PIL import Image
 from os import walk
 import string
 
-DIR = 'train/'
 FEATURE_PATH = 'feature/'
+# DIR = 'train/'
+# TARGET_NAME = 'all.txt' # for training
+DIR = 'test/'
+TARGET_NAME = 'test.txt' # for testing
 
-
+# input an object of Image
 def toFeature(img):
     pix = img.convert('1').load()
     width, height = img.size
@@ -45,7 +48,7 @@ def main():
 
         all_data += data
 
-    with open(FEATURE_PATH + 'all.txt', 'w') as ad:
+    with open(FEATURE_PATH + TARGET_NAME, 'w') as ad:
         ad.writelines(all_data)
 
 

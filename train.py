@@ -1,24 +1,46 @@
+# -*- coding=utf8 -*-
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn import svm
+from sklearn.externals import joblib
 
-DATA = 'feature/all.txt'
+TRAIN_DATA = 'feature/all.txt'
+TEST_DATA = 'feature/test.txt'
+SAVE_TO = 'model.pkl'
 
-def main():
+def readDataset(filepath):
     X, Y = [], []
     # read data set
-    with open(DATA, 'r') as dataset:
+    with open(filepath, 'r') as dataset:
         for line in dataset.readlines():
             X.append([int(x) for x in line.split(' ')[:-1]])
             Y.append(ord(line.strip()[-1]) - ord('A'))
 
+    return X, Y
+
+
+def normal_test():
+    err = 0
+    X, y = readDataset(TEST_DATA)
+    for (r, ans) in zip(clf.predict(X), y):
+        if r != ans:
+            err += 1
+
+    print('Correct rate: {rate}%'.format(rate = ((len(y)-err)*100.0/len(y) )))
+
+
+def main():
+    global clf
+    ### training
+    X, y = readDataset(TRAIN_DATA)
     # print(X[:10])
-
     clf = svm.SVC()
-    ret = clf.fit(X, Y)
+    ret = clf.fit(X, y)
     print(ret)
+    joblib.dump(clf, SAVE_TO)
 
-    print(clf.predict([[9,12,50,0,8,9,3,2,2,2,2,2,2,1,8,9,4,6,6,6,6,6,7,6,3,0,0,0,0]]))
+    ### testing
+    normal_test()
 
 
 if __name__ == '__main__':

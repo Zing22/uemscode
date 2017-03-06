@@ -122,8 +122,8 @@ def main():
     # using len() has better controllability
     err_count = 0
     for i in range(len(f)):
-        img1 = Image.open(RAW_PATH + f[i])
-        bimg = toBin(img1) # convert to `1` mode
+        img = Image.open(RAW_PATH + f[i])
+        bimg = toBin(img) # convert to `1` mode
         # bimg.save(TEMP_PATH + f[i], 'JPEG') # just for testing toBin()
         success, letters = cropLetters(bimg)
         
