@@ -69,8 +69,8 @@ def toBin(img):
 
     return gray
 
-
-def cropImg(img):
+# crop a image to four letter images
+def cropLetters(img):
     MAXIMUN_SIZE = 13 # max width/height is 13px
     # find vertical lines
     width, height = img.size
@@ -83,7 +83,8 @@ def cropImg(img):
     onLetter = False
     for x in range(width):
         s = sum([pix[x, y]==0 for y in range(height)])
-        if (s != 0 and onLetter == False) or (len(gaps) and x-gaps[-1] > MAXIMUN_SIZE):
+        # if (s != 0 and onLetter == False) or (len(gaps) and x-gaps[-1] > MAXIMUN_SIZE):
+        if (s != 0 and onLetter == False):
             gaps.append(x)
             onLetter = True
         elif s==0 and onLetter == True and x-gaps[-1] >= MAXIMUN_SIZE:
@@ -98,11 +99,15 @@ def cropImg(img):
         # 13 is the max width of one letter
         letter = img.crop((l, 0, l+MAXIMUN_SIZE, height))
         lpix = letter.load()
-        for y in range(height):
+        # scan from down-to-up, deal with 'J' and 'I'
+        for y in range(height)[::-1]:
             s = sum([lpix[x, y]==0 for x in range(MAXIMUN_SIZE)]) # [0, 13), the width
             if s!=0:
                 # 13 is the max height of one letter, interesting :)
-                letters.append(letter.crop((0, y, MAXIMUN_SIZE, y+MAXIMUN_SIZE)))
+                if y-MAXIMUN_SIZE < 0:
+                    letters.append(letter.crop((0, 0, MAXIMUN_SIZE, MAXIMUN_SIZE)))
+                else:
+                    letters.append(letter.crop((0, y-MAXIMUN_SIZE, MAXIMUN_SIZE, y)))
                 break
 
     return True, letters
@@ -115,16 +120,21 @@ def main():
         break
 
     # using len() has better controllability
+    err_count = 0
     for i in range(len(f)):
         img1 = Image.open(RAW_PATH + f[i])
         bimg = toBin(img1) # convert to `1` mode
         # bimg.save(TEMP_PATH + f[i], 'JPEG') # just for testing toBin()
-        success, letters = cropImg(bimg)
+        success, letters = cropLetters(bimg)
+        
         if success:
             for l in letters:
                 l.save(TARGET_PATH + randomName(9) + '.jpg', 'JPEG')
         else:
-            print('Error crop: {name}, {lines}'.format(name=f[i], lines=str(letters)))
+            err_count+=1
+            # print('Error crop: {name}, {lines}'.format(name=f[i], lines=str(letters)))
+
+    print('Error:', err_count)
 
 
 if __name__ == '__main__':

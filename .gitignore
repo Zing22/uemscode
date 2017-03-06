@@ -1,5 +1,6 @@
-# images
+# images and txt
 *.jpg
+feature/*.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

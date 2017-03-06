@@ -8,7 +8,7 @@ from time import sleep
 
 # return a random string with N upper case leeters and digits
 def randomName(N):
-    return ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(N))
+    return ''.join(random.choice(string.ascii_uppercase) for x in range(N))
 
 
 def main():
