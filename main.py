@@ -25,10 +25,13 @@ RAW_TEST = 'raw_test/'
 RAW_DONE = 'raw_done/'
 
 
-# Core function, input path of code picture, return the code!
+# Core function, input path of code picture(or Image obj), return the code!
 def img2code(path):
-    # open raw image
-    img = Image.open(path)
+    try:
+        img = Image.open(path)
+    except Exception as e:
+        path.load()
+        img = path
     bimg = toBin(img) # convert to `1` mode
     success, letters = cropLetters(bimg) # crop into four letter images
     if not success:
@@ -62,7 +65,7 @@ def main():
 
     # do raw test
     for file in readAllFiles(RAW_TEST):
-        name = img2code(RAW_TEST + file)
+        name = img2code(Image.open(RAW_TEST + file))
         if name != 'ERROR':
             move(RAW_TEST+file, RAW_DONE+name+'.jpg')
 

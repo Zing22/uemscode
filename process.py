@@ -104,10 +104,10 @@ def cropLetters(img):
             s = sum([lpix[x, y]==0 for x in range(MAXIMUN_SIZE)]) # [0, 13), the width
             if s!=0:
                 # 13 is the max height of one letter, interesting :)
-                if y-MAXIMUN_SIZE < 0:
+                if y-MAXIMUN_SIZE+1 < 0:
                     letters.append(letter.crop((0, 0, MAXIMUN_SIZE, MAXIMUN_SIZE)))
                 else:
-                    letters.append(letter.crop((0, y-MAXIMUN_SIZE, MAXIMUN_SIZE, y)))
+                    letters.append(letter.crop((0, y-MAXIMUN_SIZE+1, MAXIMUN_SIZE, y+1)))
                 break
 
     return True, letters

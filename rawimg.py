@@ -7,8 +7,8 @@ from urllib.request import urlretrieve
 from time import sleep
 
 IMG_URL = 'http://uems.sysu.edu.cn/elect/login/code' # no offense
-PATH = 'raw/'
-# PATH = 'raw_test/'
+# PATH = 'raw/'
+PATH = 'raw_test/'
 
 
 # return a random string with N upper case leeters and digits
