@@ -7,10 +7,10 @@ from os import walk
 import string
 
 FEATURE_PATH = 'feature/'
-# DIR = 'train/'
-# TARGET_NAME = 'all.txt' # for training
-DIR = 'test/'
-TARGET_NAME = 'test.txt' # for testing
+DIR = 'train/'
+TARGET_NAME = 'all.txt' # for training
+# DIR = 'test/'
+# TARGET_NAME = 'test.txt' # for testing
 
 # input an object of Image
 def toFeature(img):
@@ -31,6 +31,7 @@ def toFeature(img):
 
 
 def main():
+    print('To: {path}{filename}'.format(path=DIR, filename=TARGET_NAME))
     all_data = ""
     for path in string.ascii_uppercase:
         f = []
@@ -43,14 +44,15 @@ def main():
             img = Image.open(DIR+path+'/'+file)
             fea = toFeature(img)
             data += fea + ' ' + path + '\n'
-        with open(FEATURE_PATH + path + '.txt', 'w') as d:
-            d.writelines(data)
+        # with open(FEATURE_PATH + path + '.txt', 'w') as d:
+        #     d.writelines(data)
 
         all_data += data
 
     with open(FEATURE_PATH + TARGET_NAME, 'w') as ad:
         ad.writelines(all_data)
 
+    print('Next step: train the model.')
 
 if __name__ == '__main__':
     main()

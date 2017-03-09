@@ -9,7 +9,7 @@ TEMP_PATH = 'monochrome/'
 TARGET_PATH = 'processed/'
 THRESHOLD = 150 # gray pixel threshold
 # SURROUNDING = [(x, y) for y in [-1,0,1] for x in [-1,0,1]]
-SURROUNDING = [(0,1), (0,-1), (-1,0), (1,0), (0,0)] # define the isolated points
+SURROUNDING = [(0,1), (0,-1), (-1,0), (1,0)] # define the isolated points
 
 
 def rotate(img, angle):
@@ -21,6 +21,31 @@ def rotate(img, angle):
     background = background.rotate(angle)
     background = background.crop((50, 50, 50+width, 50+height))
     return background
+
+
+# An island is some black pixels which are not connected to the rest.
+def remove_island(img):
+    width, height = img.size
+    pix = img.load()
+    all_black, queue, island = [],[],[]
+    all_black = [(x,y) for x in range(width) for y in range(height) if pix[x,y]==0]
+    # print(all_black)
+    while len(all_black):
+        index = 0
+        queue = [all_black[0], ]
+        all_black = all_black[1:] # just like shift
+        while index < len(queue):
+            now = queue[index]
+            for sr in [tuple(map(sum, zip(a, now))) for a in SURROUNDING]:
+                if sr in all_black:
+                    queue.append(sr)
+                    all_black.remove(sr)
+            index += 1
+        if len(queue) < 5:
+            island.extend(queue)
+    for (x,y) in island:
+        pix[x, y] = 255
+    # print(island)
 
 
 # convert image object to binarization image.
@@ -40,32 +65,25 @@ def toBin(img):
         for x in range(width):
             pix[x, y] = 255 if pix[x, y] > THRESHOLD else 0
 
-    # remove isolated points
-    isolated = []
-    for y in range(1, height-1):
-        for x in range(1, width-1):
-            if pix[x,y] == 0 and sum([pix[x+ox, y+oy] == 0 for (ox, oy) in SURROUNDING]) == 1:
-                isolated.append((x, y))
-    for (x,y) in isolated:
-        pix[x, y] = 255
-
-    # remove horizontal noise
-    for y in range(height):
-        s = sum([pix[x, y]==0 for x in range(width)])
-        if s > 0 and s < 5:
-            for x in range(width):
-                pix[x, y] = 255
-
     # rotation makes the letter upright
     gray = rotate(gray, 7)
     pix = gray.load() # reload pixels
 
-    # remove vertical connection between two letters
+    # Forcedly cut off some wide letters
+    MAXIMUN_SIZE = 13 # max width/height is 13px
+    black_count = 0
     for x in range(width):
         s = sum([pix[x, y]==0 for y in range(height)])
-        if s > 0 and s < 2:
-            for y in range(height):
-                pix[x, y] = 255
+        if s == 0:
+            black_count = 0
+        elif black_count == MAXIMUN_SIZE:
+            for hei in range(height):
+                pix[x+1, hei] = 255
+            black_count = 0
+        else:
+            black_count+=1
+
+    remove_island(gray)
 
     return gray
 
@@ -75,10 +93,11 @@ def cropLetters(img):
     # find vertical lines
     width, height = img.size
 
-    ### (delete) we don't find the gaps between letter, we decide!
+    ### (delete-line) we don't find the gaps between letter, we decide!
     # gaps = [8+i*MAXIMUN_SIZE for i in range(4)]
     #### fine, let's find the gaps
     pix = img.load()
+
     gaps = [] # contain four letters' start position on width axes
     onLetter = False
     for x in range(width):
@@ -87,7 +106,11 @@ def cropLetters(img):
         if (s != 0 and onLetter == False):
             gaps.append(x)
             onLetter = True
-        elif s==0 and onLetter == True and x-gaps[-1] >= MAXIMUN_SIZE:
+        elif s!=0 and onLetter and x-gaps[-1] >= MAXIMUN_SIZE-1:
+            # too wide letter
+            for hei in range(height):
+                pix[x+1, hei] = 255
+        elif s==0 and onLetter == True and x-gaps[-1] >= MAXIMUN_SIZE-1:
             onLetter = False
     
     if len(gaps)<4:
@@ -135,6 +158,7 @@ def main():
             # print('Error crop: {name}, {lines}'.format(name=f[i], lines=str(letters)))
 
     print('Error:', err_count)
+    print('Now do the classify by hand, and then exec img2feature.py.')
 
 
 if __name__ == '__main__':

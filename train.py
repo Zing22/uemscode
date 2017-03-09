@@ -1,11 +1,15 @@
 # -*- coding=utf8 -*-
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn import svm
+from sklearn.svm import SVC
+from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.tree import DecisionTreeClassifier
 from sklearn.externals import joblib
+from sklearn.model_selection import train_test_split
+
 
 TRAIN_DATA = 'feature/all.txt'
-TEST_DATA = 'feature/test.txt'
+# TEST_DATA = 'feature/test.txt'
 SAVE_TO = 'model.pkl'
 
 def readDataset(filepath):
@@ -19,28 +23,28 @@ def readDataset(filepath):
     return X, Y
 
 
-def normal_test():
-    err = 0
-    X, y = readDataset(TEST_DATA)
-    for (r, ans) in zip(clf.predict(X), y):
-        if r != ans:
-            err += 1
-
-    print('Correct rate: {rate}%'.format(rate = ((len(y)-err)*100.0/len(y) )))
-
-
 def main():
     global clf
     ### training
     X, y = readDataset(TRAIN_DATA)
-    # print(X[:10])
-    clf = svm.SVC()
-    ret = clf.fit(X, y)
-    print(ret)
-    joblib.dump(clf, SAVE_TO)
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.3, random_state=0)
 
-    ### testing
-    normal_test()
+    clf = SVC()
+    ret = clf.fit(X_train, y_train)
+
+
+    yt = clf.predict(X_test)
+    print(np.sum(yt==y_test)*100.0/len(yt))
+
+    # joblib.dump(clf, SAVE_TO)
+    # print('Model is saved.')
+
+    clf = GradientBoostingClassifier()
+    ret = clf.fit(X_train, y_train)
+
+    yt = clf.predict(X_test)
+    print(np.sum(yt==y_test)*100.0/len(yt))
 
 
 if __name__ == '__main__':

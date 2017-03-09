@@ -64,11 +64,17 @@ def main():
     clf = joblib.load(SAVE_TO)
 
     # do raw test
+    err, total = 0,0
     for file in readAllFiles(RAW_TEST):
         name = img2code(Image.open(RAW_TEST + file))
         if name != 'ERROR':
             move(RAW_TEST+file, RAW_DONE+name+'.jpg')
+        else:
+            err += 1
+        total += 1
 
+    print('Done, check it and do error correction.')
+    print('Error: {err}/{total}'.format(err = err, total = total))
     return
 
 
