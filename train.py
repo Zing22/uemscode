@@ -28,23 +28,28 @@ def main():
     ### training
     X, y = readDataset(TRAIN_DATA)
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.3, random_state=0)
+        X, y, test_size=0.25, random_state=2)
 
     clf = SVC()
     ret = clf.fit(X_train, y_train)
 
-
     yt = clf.predict(X_test)
-    print(np.sum(yt==y_test)*100.0/len(yt))
+    print("SVM:", np.sum(yt==y_test)*100.0/len(yt))
 
-    # joblib.dump(clf, SAVE_TO)
-    # print('Model is saved.')
+    joblib.dump(clf, SAVE_TO)
+    print('SVM Model is saved.')
 
     clf = GradientBoostingClassifier()
     ret = clf.fit(X_train, y_train)
 
     yt = clf.predict(X_test)
-    print(np.sum(yt==y_test)*100.0/len(yt))
+    print("Gradient Boosting:", np.sum(yt==y_test)*100.0/len(yt))
+
+    clf = DecisionTreeClassifier()
+    ret = clf.fit(X_train, y_train)
+
+    yt = clf.predict(X_test)
+    print("Decision Tree:", np.sum(yt==y_test)*100.0/len(yt))
 
 
 if __name__ == '__main__':

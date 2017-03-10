@@ -13,7 +13,7 @@ from sklearn import svm
 from sklearn.externals import joblib
 from PIL import Image
 
-from train import readDataset, normal_test
+from train import readDataset
 from rawimg import randomName
 from process import toBin, cropLetters
 from img2feature import toFeature
